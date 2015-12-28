@@ -1,0 +1,56 @@
+<project name="facebook" default="dist" basedir=".">
+	<description>
+        facebook project build file
+    </description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="bin" location="bin" />
+	<property name="dist" location="dist" />
+	<property name="grammarLocation" location="${src}/com/kk/facebook/webClient" />
+
+	<path id="classpath">
+		<fileset dir="libs">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+	<target name="init">
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${bin}" />
+	</target>
+
+	<target name="buildGrammar">
+		<!-- Compile the grammar with antlr -->
+		<java classname="org.antlr.Tool" classpathref="classpath" failonerror="true">
+			<arg value="-verbose" />
+			<arg value="-o" />
+			<arg path="${grammarLocation}" />
+			<arg path="${grammarLocation}/FacebookGraph.g" />
+		</java>
+	</target>
+
+	<target name="build" depends="init,buildGrammar" description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${bin}" debug="true" classpathref="classpath" />
+	</target>
+
+	<target name="dist" depends="build" description="generate the distribution">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/facebook-graph-api.jar" basedir="${bin}" />
+	</target>
+
+	<target name="run" depends="dist" description="run the distribution">
+		<java classname="com.kk.facebook.Facebook" failonerror="true" classpathref="classpath"/>
+	</target>
+	
+	<target name="clean" description="clean up">
+		<delete file="${grammarLocation}/FacebookGraphLexer.java" />
+		<delete file="${grammarLocation}/FacebookGraphParser.java" />
+		<delete file="${grammarLocation}/FacebookGraph.tokens" />
+		<delete file="${grammarLocation}/FacebookGraphLexer.smap" />
+
+		<!-- Delete the ${bin} and ${dist} directory trees -->
+		<delete dir="${bin}" />
+		<delete dir="${dist}" />
+	</target>
+</project>
